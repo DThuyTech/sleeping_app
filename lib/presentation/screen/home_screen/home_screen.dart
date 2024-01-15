@@ -1,9 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sleeping_app/common/constant/constant_varaiable.dart';
+import 'package:sleeping_app/presentation/screen/beat_heart/heart_beat.dart';
 import 'package:sleeping_app/presentation/screen/breath_screen/breath_screen.dart';
+import 'package:sleeping_app/presentation/screen/chosing_time/chosing_time.dart';
+import 'package:sleeping_app/presentation/screen/sleeping_screen/sleeping_screen.dart';
 import 'package:sleeping_app/presentation/supervise_screen/supervise_screen.dart';
 import 'package:sleeping_app/presentation/widget/button_chose.dart';
+import 'package:uuid/uuid.dart';
+
+import '../option_sound/option_sound.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +21,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Future<void> checkExist() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? user = prefs.getString('userId');
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    String uuid = const Uuid().v6();
+    if (user == null) {
+      try {
+        await firestore.collection('user').doc(uuid).set({
+          'userId': uuid,
+        });
+        await prefs.setString('userId', uuid);
+      } catch (e) {
+        print('Error');
+      }
+    }
+  }
+
   Stream<String> _clock() async* {
     while (true) {
       await Future<void>.delayed(const Duration(seconds: 1));
@@ -20,6 +45,12 @@ class _HomeScreenState extends State<HomeScreen> {
       // This will be displayed on the screen as current time
       yield "${now.hour} : ${now.minute} : ${now.second}";
     }
+  }
+
+  @override
+  void initState() {
+    checkExist();
+    super.initState();
   }
 
   @override
@@ -112,7 +143,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: ButtonChose(
-                                  voidCallback: () {},
+                                  voidCallback: () {
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                        builder: (context) => const SoundScreen()));
+                                  },
                                   content: 'Âm thanh',
                                 ),
                               ),
@@ -130,7 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: ButtonChose(
-                                  voidCallback: () {},
+                                  voidCallback: () {
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                        builder: (context) => const HeartLayoutScreen()));
+                                  },
                                   content: 'Nhịp tim',
                                 ),
                               ),
@@ -180,137 +217,173 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Row(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: purpleButton1,
-                              ),
-                              width: MediaQuery.sizeOf(context).width * 0.45,
-                              height: MediaQuery.sizeOf(context).height * 0.15,
-                              child: Stack(
-                                children: [
-                                  const Positioned(
-                                    top: 5,
-                                    left: 10,
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'NGỦ NHANH',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700,
+                            InkWell(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext builder) {
+                                      return Dialog(
+                                        backgroundColor: Colors.transparent,
+                                        alignment: Alignment.topRight,
+                                        child: Container(
+                                            width: MediaQuery.sizeOf(context).width,
+                                            height: MediaQuery.sizeOf(context).height,
+                                            child: const ChoosingTime(optionSleep: true)),
+                                      );
+                                    });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: purpleButton1,
+                                ),
+                                width: MediaQuery.sizeOf(context).width * 0.45,
+                                height: MediaQuery.sizeOf(context).height * 0.15,
+                                child: Stack(
+                                  children: [
+                                    const Positioned(
+                                      top: 5,
+                                      left: 10,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'NGỦ NHANH',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
-                                          ),
-                                          SizedBox(
-                                            height: 5,
-                                          ),
-                                          Text(
-                                            'Từ 20p đến 2 tiếng',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w300,
+                                            SizedBox(
+                                              height: 5,
                                             ),
-                                          ),
-                                        ],
+                                            Text(
+                                              'Từ  đến 6 tiếng',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w300,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Positioned(
-                                      bottom: 10,
-                                      right: 10,
-                                      child: GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 30, vertical: 7),
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: const Text(
-                                            'Bắt đầu',
-                                            style: TextStyle(
-                                              color: purpleButton1,
-                                              fontSize: 13,
+                                    Positioned(
+                                        bottom: 10,
+                                        right: 10,
+                                        child: GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 30, vertical: 7),
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: const Text(
+                                              'Bắt đầu',
+                                              style: TextStyle(
+                                                color: purpleButton1,
+                                                fontSize: 13,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ))
-                                ],
+                                        ))
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(
                               width: 5,
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: purpleButton1,
-                              ),
-                              width: MediaQuery.sizeOf(context).width * 0.45,
-                              height: MediaQuery.sizeOf(context).height * 0.15,
-                              child: Stack(
-                                children: [
-                                  const Positioned(
-                                    top: 5,
-                                    left: 10,
-                                    child: Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'NGỦ SÂU',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700,
+                            InkWell(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext builder) {
+                                      return Dialog(
+                                        backgroundColor: Colors.transparent,
+                                        alignment: Alignment.topRight,
+                                        child: Container(
+                                          
+                                            width: MediaQuery.sizeOf(context).width,
+                                            height: MediaQuery.sizeOf(context).height,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(10),
                                             ),
-                                          ),
-                                          SizedBox(
-                                            height: 5,
-                                          ),
-                                          Text(
-                                            'Từ 4 đến 8 tiếng',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w300,
+                                            child: const ChoosingTime(optionSleep: false)),
+                                      );
+                                    });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: purpleButton1,
+                                ),
+                                width: MediaQuery.sizeOf(context).width * 0.45,
+                                height: MediaQuery.sizeOf(context).height * 0.15,
+                                child: Stack(
+                                  children: [
+                                    const Positioned(
+                                      top: 5,
+                                      left: 10,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'NGỦ SÂU',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                              'Từ 8 đến 10 tiếng',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w300,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Positioned(
-                                      bottom: 10,
-                                      right: 10,
-                                      child: GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 30, vertical: 7),
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: const Text(
-                                            'Bắt đầu',
-                                            style: TextStyle(
-                                              color: purpleButton1,
-                                              fontSize: 13,
+                                    Positioned(
+                                        bottom: 10,
+                                        right: 10,
+                                        child: GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 30, vertical: 7),
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: const Text(
+                                              'Bắt đầu',
+                                              style: TextStyle(
+                                                color: purpleButton1,
+                                                fontSize: 13,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ))
-                                ],
+                                        ))
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -339,8 +412,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) => const SuperviseScreen()));
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => const SuperviseScreen()));
                               },
                               child: Container(
                                 decoration: BoxDecoration(

@@ -3,21 +3,28 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:sleeping_app/common/constant/constant_varaiable.dart';
 
 class BreathingScreen extends StatefulWidget {
-  const BreathingScreen({super.key});
-
+  const BreathingScreen({super.key, required this.breathIn, required this.breathOut, required this.step});
+  final int breathIn;
+  final int breathOut;
+  final int step;
   @override
   State<BreathingScreen> createState() => _BreathingScreenState();
 }
 
 class _BreathingScreenState extends State<BreathingScreen> {
   Stream<int> breath4s() async* {
+    bool breath = true;
+
     int i = 0;
     while (true) {
-      await Future<void>.delayed(const Duration(seconds: 1));
-      if (i == 4) {
+      if (i == (breath?widget.breathIn+1:widget.breathOut+1)) {
+        breath = !breath;
+
         i = 0;
       } else {
         i++;
+        await Future<void>.delayed(const Duration(seconds: 1));
+
       }
       // This will be displayed on the screen as current time
       yield i;
@@ -26,14 +33,17 @@ class _BreathingScreenState extends State<BreathingScreen> {
 
   Stream<bool> breathStrings() async* {
     bool breath = true;
+    int step = widget.step;
+
     int i = 0;
     while (true) {
-      await Future<void>.delayed(const Duration(seconds: 1));
-      if (i == 4) {
+      if (i == (breath?widget.breathIn+1:widget.breathOut+1)) {
         breath = !breath;
         i = 0;
       } else {
         i++;
+        await Future<void>.delayed(const Duration(seconds: 1));
+
       }
       // This will be displayed on the screen as current time
       yield breath;
@@ -99,10 +109,10 @@ class _BreathingScreenState extends State<BreathingScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
-                        const Align(
+                         Align(
                           alignment: Alignment.center,
                           child: Text(
-                            'Hít vào 4 giây - thở ra 4 giây',
+                            'Hít vào ${widget.breathIn} giây - thở ra ${widget.breathOut} giây',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -168,7 +178,7 @@ class _BreathingScreenState extends State<BreathingScreen> {
                                     animation: true,
                                     lineHeight: 30.0,
                                     animationDuration: 0,
-                                    percent: 0.25 * num.parse(snapshot.data.toString()),
+                                    percent: 0.1 * num.parse(snapshot.data.toString()),
                                     progressColor: purpleButton1,
                                     backgroundColor: Colors.white,
                                   ),

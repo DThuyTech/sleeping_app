@@ -198,17 +198,17 @@ class _BreathScreenState extends State<BreathScreen> {
                         Column(
                           children: [
                             cardContent(
-                                'assets/deepbreath.jpg', "Thở sâu", "Thở sâu giúp điều hòa cơ thể"),
+                                'assets/deepbreath.jpg', "Thở sâu", "Thở sâu giúp điều hòa cơ thể",'4-7-8',4,7),
                             const SizedBox(
                               height: 10,
                             ),
                             cardContent('assets/boxbreath.jpg', "Thở hộp",
-                                "Thở sâu giúp điều hòa cơ thể, mang lại cảm giác yên bình"),
+                                "Thở sâu giúp điều hòa cơ thể, mang lại cảm giác yên bình",'4-4-4-4',4,4),
                             const SizedBox(
                               height: 10,
                             ),
                             cardContent('assets/noisesleep.jpg', "Giảm ngáy",
-                                "Thở sâu giúp điều hòa cơ thể, mang lại cảm giác yên bình"),
+                                "Thở sâu giúp điều hòa cơ thể, mang lại cảm giác yên bình",'5-6',5,6),
                           ],
                         )
                       ],
@@ -223,11 +223,11 @@ class _BreathScreenState extends State<BreathScreen> {
     );
   }
 
-  Widget cardContent(String pathImage, String title, String content) {
+  Widget cardContent(String pathImage, String title, String content,String beat,int breathIn,int breathOut) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => const BreathingScreen()));
+            builder: (context) =>  BreathingScreen(breathIn: breathIn,breathOut: breathOut, step: 6,)));
       },
       child: Container(
         width: MediaQuery.sizeOf(context).width * 0.9,
@@ -243,7 +243,7 @@ class _BreathScreenState extends State<BreathScreen> {
         child: Row(
           children: [
             Container(
-              height: MediaQuery.sizeOf(context).height * 0.1,
+              height: MediaQuery.sizeOf(context).height * 0.12,
               width: MediaQuery.sizeOf(context).width * 0.25,
               decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
@@ -258,7 +258,7 @@ class _BreathScreenState extends State<BreathScreen> {
             ),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              height: MediaQuery.sizeOf(context).height * 0.1,
+              height: MediaQuery.sizeOf(context).height * 0.12,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,10 +271,19 @@ class _BreathScreenState extends State<BreathScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  Text(
+                    beat,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                   SizedBox(
                     width: MediaQuery.sizeOf(context).width * 0.5,
                     child: Text(
                       content,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.white,
